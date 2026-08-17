@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Common\TheWatch.Domain\TheWatch.Domain.csproj" />
+    <ProjectReference Include="..\..\Common\TheWatch.Abstractions\TheWatch.Abstractions.csproj" />
     <ProjectReference Include="..\TheWatch.Contracts\TheWatch.Contracts.csproj" />
   </ItemGroup>
 

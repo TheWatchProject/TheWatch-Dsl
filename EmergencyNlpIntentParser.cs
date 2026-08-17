@@ -12,6 +12,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using TheWatch.Dsl.WordNet.Engine;
+using TheWatch.Dsl.WordNet.Models;
 
 namespace TheWatch.Dsl;
 
@@ -27,7 +29,9 @@ public sealed record NlpIntentClassification(
     double Confidence,
     IReadOnlyList<NlpEntity> ExtractedEntities,
     IReadOnlyList<string> RecommendedDispatchProtocols,
-    bool RequiresSilentDuressMode
+    bool RequiresSilentDuressMode,
+    IReadOnlyList<SemanticClassificationResult>? WordNetConcepts = null,
+    IReadOnlyList<BaseWordNetEntity>? SynthesizedCategoryModels = null
 );
 
 /// <summary>
@@ -51,6 +55,13 @@ public sealed class EmergencyNlpIntentParser
         ["unconscious"] = ("UNRESPONSIVE_PATIENT", new[] { "DISPATCH_ALS_PARAMEDIC" }, 0.95)
     };
 
+    private readonly WordNetSemanticDslEngine _wordNetEngine;
+
+    public EmergencyNlpIntentParser(WordNetSemanticDslEngine? wordNetEngine = null)
+    {
+        _wordNetEngine = wordNetEngine ?? new WordNetSemanticDslEngine();
+    }
+
     public NlpIntentClassification ParseCallTranscript(string transcript)
     {
         if (string.IsNullOrWhiteSpace(transcript))
@@ -60,7 +71,9 @@ public sealed class EmergencyNlpIntentParser
                 Confidence: 0.0,
                 ExtractedEntities: Array.Empty<NlpEntity>(),
                 RecommendedDispatchProtocols: Array.Empty<string>(),
-                RequiresSilentDuressMode: false
+                RequiresSilentDuressMode: false,
+                WordNetConcepts: Array.Empty<SemanticClassificationResult>(),
+                SynthesizedCategoryModels: Array.Empty<BaseWordNetEntity>()
             );
         }
 
@@ -108,12 +121,18 @@ public sealed class EmergencyNlpIntentParser
             }
         }
 
+        // 4. WordNet Semantic Extraction & Category Model Synthesis
+        var wordNetConcepts = _wordNetEngine.ExtractConcepts(transcript);
+        var categoryModels = wordNetConcepts.Select(c => c.SynthesizedDataModel).ToList();
+
         return new NlpIntentClassification(
             PrimaryIntent: bestIntent,
             Confidence: maxConf,
             ExtractedEntities: entities,
             RecommendedDispatchProtocols: protocols.ToList(),
-            RequiresSilentDuressMode: isDuress
+            RequiresSilentDuressMode: isDuress,
+            WordNetConcepts: wordNetConcepts,
+            SynthesizedCategoryModels: categoryModels
         );
     }
 }
