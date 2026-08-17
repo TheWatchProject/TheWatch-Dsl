@@ -1,3 +1,13 @@
+// <copyright file="DslLexerAndParser.cs" company="The Watch, LLC">
+// Copyright (c) 2026 Barton Milnor Mallory, The Watch, LLC. All rights reserved.
+// </copyright>
+
+/// <summary>
+/// Source file: src/Libraries/TheWatch.Dsl/DslLexerAndParser.cs
+/// Module: Domain-Specific Language Compiler, Lexers & Scientific Measurements
+/// Defines: enum TokenType, record Token, record DslAstNode
+/// Namespace: TheWatch.Dsl
+/// </summary>
 using System;
 using System.Collections.Generic;
 using System.Linq;

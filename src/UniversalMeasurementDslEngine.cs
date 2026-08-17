@@ -1,3 +1,13 @@
+// <copyright file="UniversalMeasurementDslEngine.cs" company="The Watch, LLC">
+// Copyright (c) 2026 Barton Milnor Mallory, The Watch, LLC. All rights reserved.
+// </copyright>
+
+/// <summary>
+/// Source file: src/Libraries/TheWatch.Dsl/UniversalMeasurementDslEngine.cs
+/// Module: Domain-Specific Language Compiler, Lexers & Scientific Measurements
+/// Defines: record ParsedMeasurement, class UniversalMeasurementDslEngine
+/// Namespace: TheWatch.Dsl
+/// </summary>
 using System;
 using System.Globalization;
 using System.Text.RegularExpressions;
