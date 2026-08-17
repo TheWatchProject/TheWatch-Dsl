@@ -13,14 +13,139 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using TheWatch.Abstractions.Taxonomy;
 
 namespace TheWatch.Dsl.WordNet.Taxonomy;
 
 /// <summary>
-/// Authoritative Registry mapping WordNet 3.0 lexical categories and lemmas to multiple NAICS and NAPCS codes.
+/// Authoritative Registry mapping WordNet 3.0 lexical categories, lemmas, and emergency events to multiple NAICS and NAPCS codes.
 /// </summary>
 public static class NaicsNapcsTaxonomyRegistry
 {
+    private static readonly Dictionary<string, (List<NaicsClassification> Naics, List<NapcsClassification> Napcs)> LemmaAndEventMappings = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["fire"] = (
+            new List<NaicsClassification>
+            {
+                new("922160", "Fire Protection (Fire Suppression & Rescue)", "Public Administration", true, 2.5),
+                new("236220", "Commercial and Institutional Building Construction", "Construction", false, 1.2)
+            },
+            new List<NapcsClassification>
+            {
+                new("6421111", "Structural fire suppression, ventilation, and perimeter attack", "Fire Protection"),
+                new("6421112", "Heavy structural collapse rescue, shoring, and occupant extrication", "Fire Protection")
+            }
+        ),
+        ["wildfire"] = (
+            new List<NaicsClassification>
+            {
+                new("922160", "Fire Protection (Wildland Firefighting)", "Public Administration", true, 2.5),
+                new("924120", "Administration of Conservation Programs (Forestry Fuel Management)", "Public Administration", true, 2.0)
+            },
+            new List<NapcsClassification>
+            {
+                new("6421111", "Wildland fire suppression, containment firebreaks, and retardant drops", "Fire Protection"),
+                new("9221602", "Wildfire rate-of-spread atmospheric tracking and containment", "Public Safety")
+            }
+        ),
+        ["shooting"] = (
+            new List<NaicsClassification>
+            {
+                new("922120", "Police Protection (Tactical SWAT & Active Threat Intervention)", "Public Administration", true, 2.5),
+                new("928110", "National Security and Counter-Terrorism Operations", "Public Administration", true, 2.5)
+            },
+            new List<NapcsClassification>
+            {
+                new("6411111", "Active shooter tactical intervention and counter-assault", "Law Enforcement"),
+                new("6412112", "Hostage rescue, room clearing, and casualty extraction corridor ops", "Public Safety")
+            }
+        ),
+        ["active shooter"] = (
+            new List<NaicsClassification>
+            {
+                new("922120", "Police Protection (Tactical SWAT & Active Threat Intervention)", "Public Administration", true, 2.5),
+                new("928110", "National Security and Counter-Terrorism Operations", "Public Administration", true, 2.5)
+            },
+            new List<NapcsClassification>
+            {
+                new("6411111", "Active shooter tactical intervention and counter-assault", "Law Enforcement"),
+                new("6412112", "Hostage rescue, room clearing, and casualty extraction corridor ops", "Public Safety")
+            }
+        ),
+        ["cardiac arrest"] = (
+            new List<NaicsClassification>
+            {
+                new("621910", "Ambulance Services (Advanced Life Support)", "Health Care", true, 2.5),
+                new("622110", "General Medical and Surgical Hospitals (Cardiac Intensive Care)", "Health Care", true, 2.5)
+            },
+            new List<NapcsClassification>
+            {
+                new("6431111", "Emergency cardiac life support, ALS resuscitation, and defibrillation", "Healthcare"),
+                new("6431112", "Emergency department acute resuscitation and catheterization transfer", "Healthcare")
+            }
+        ),
+        ["hazmat"] = (
+            new List<NaicsClassification>
+            {
+                new("562211", "Hazardous Waste Treatment and Disposal", "Waste Management", true, 2.2),
+                new("562910", "Remediation Services (Hazmat Containment)", "Waste Management", true, 2.0)
+            },
+            new List<NapcsClassification>
+            {
+                new("5629111", "Chemical neutralization, vapor suppression, and hazardous spill containment", "Environmental"),
+                new("5413812", "Toxicological sample spectrometry and chemical identification testing", "Testing Laboratories")
+            }
+        ),
+        ["evacuate"] = (
+            new List<NaicsClassification>
+            {
+                new("485991", "Special Needs Transportation (Mass Evacuation Transit)", "Transportation", false, 1.8),
+                new("922190", "Other Justice, Public Order, and Safety Activities", "Public Administration", true, 2.0)
+            },
+            new List<NapcsClassification>
+            {
+                new("4859911", "Mass population emergency evacuation transit and corridor transit", "Ground Transport"),
+                new("6441115", "Emergency temporary congregate sheltering and refugee intake", "Disaster Services")
+            }
+        ),
+        ["drone"] = (
+            new List<NaicsClassification>
+            {
+                new("336411", "Aircraft and Unmanned Aerial Vehicle (UAV) Manufacturing", "Manufacturing", true, 2.5),
+                new("488190", "Other Support Activities for Air Transportation (Autonomous Drone Ops)", "Transportation", true, 2.0)
+            },
+            new List<NapcsClassification>
+            {
+                new("3811111", "Unmanned aerial vehicles and tactical autonomous systems", "Defense Systems"),
+                new("4881111", "Autonomous aerial surveillance and thermal reconnaissance services", "Aviation Services")
+            }
+        ),
+        ["ambulance"] = (
+            new List<NaicsClassification>
+            {
+                new("621910", "Ambulance Services (Ground and Air Emergency Transit)", "Health Care", true, 2.5),
+                new("336212", "Truck Trailer and Emergency Vehicle Manufacturing", "Manufacturing", true, 2.0)
+            },
+            new List<NapcsClassification>
+            {
+                new("6432111", "Emergency ground/air ambulance patient evacuation transport", "Healthcare Transport"),
+                new("3821111", "Emergency response vehicles and ambulances", "Transportation Equipment")
+            }
+        ),
+        ["hospital"] = (
+            new List<NaicsClassification>
+            {
+                new("622110", "General Medical and Surgical Hospitals (Trauma Centers)", "Health Care", true, 2.5),
+                new("621493", "Freestanding Ambulatory Surgical and Emergency Centers", "Health Care", true, 2.2)
+            },
+            new List<NapcsClassification>
+            {
+                new("6431111", "Hospital inpatient trauma care and emergency treatment", "Healthcare"),
+                new("6431112", "Emergency department acute surgical resuscitation services", "Healthcare")
+            }
+        )
+    };
+
     private static readonly Dictionary<int, (List<NaicsClassification> Naics, List<NapcsClassification> Napcs)> CategoryMappings = new()
     {
         // 4: noun.act (Operations, interventions)
@@ -228,6 +353,11 @@ public static class NaicsNapcsTaxonomyRegistry
     /// </summary>
     public static (IReadOnlyList<NaicsClassification> Naics, IReadOnlyList<NapcsClassification> Napcs) GetClassifications(int lexFileNum, string? lemma = null)
     {
+        if (!string.IsNullOrWhiteSpace(lemma) && LemmaAndEventMappings.TryGetValue(lemma.Trim(), out var lemmaMapped))
+        {
+            return (lemmaMapped.Naics.AsReadOnly(), lemmaMapped.Napcs.AsReadOnly());
+        }
+
         if (CategoryMappings.TryGetValue(lexFileNum, out var mapped))
         {
             return (mapped.Naics.AsReadOnly(), mapped.Napcs.AsReadOnly());

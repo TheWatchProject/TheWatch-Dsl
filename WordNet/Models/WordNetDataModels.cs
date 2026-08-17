@@ -125,6 +125,78 @@ public class EventEntityModel : BaseWordNetEntity, INounEventCategory
     }
 }
 
+public class StructuralFireEventModel : EventEntityModel
+{
+    public string BuildingType { get; set; } = "Commercial";
+    public int AlarmLevel { get; set; } = 3;
+
+    public StructuralFireEventModel()
+    {
+        Lemma = "fire";
+        PopulateTaxonomy(11);
+    }
+}
+
+public class ActiveThreatEventModel : EventEntityModel
+{
+    public string ThreatType { get; set; } = "ActiveShooter";
+    public int HostageCount { get; set; } = 0;
+
+    public ActiveThreatEventModel()
+    {
+        Lemma = "active shooter";
+        PopulateTaxonomy(11);
+    }
+}
+
+public class CardiacArrestEventModel : EventEntityModel
+{
+    public bool HasAedApplied { get; set; }
+    public double EstimatedDowntimeMinutes { get; set; }
+
+    public CardiacArrestEventModel()
+    {
+        Lemma = "cardiac arrest";
+        PopulateTaxonomy(11);
+    }
+}
+
+public class HazmatIncidentEventModel : EventEntityModel
+{
+    public string ChemicalName { get; set; } = "Ammonia";
+    public string UnNumber { get; set; } = "UN1005";
+
+    public HazmatIncidentEventModel()
+    {
+        Lemma = "hazmat";
+        PopulateTaxonomy(11);
+    }
+}
+
+public class EvacuationEventModel : EventEntityModel
+{
+    public string CorridorId { get; set; } = "Corridor-North";
+    public int PopulationCount { get; set; } = 500;
+
+    public EvacuationEventModel()
+    {
+        Lemma = "evacuate";
+        PopulateTaxonomy(11);
+    }
+}
+
+public class DroneAnomalyEventModel : EventEntityModel
+{
+    public string DroneId { get; set; } = "DRN-1";
+    public string AnomalyType { get; set; } = "MotorStall";
+
+    public DroneAnomalyEventModel()
+    {
+        Lemma = "drone";
+        PopulateTaxonomy(11);
+    }
+}
+
 public class ActEntityModel : BaseWordNetEntity, INounActCategory
 {
     public int LexographerFileNumber => 4;

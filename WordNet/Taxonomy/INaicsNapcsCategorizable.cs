@@ -4,42 +4,13 @@
 
 /// <summary>
 /// Source file: src/Libraries/TheWatch.Dsl/WordNet/Taxonomy/INaicsNapcsCategorizable.cs
-/// Module: NAICS & NAPCS Multi-Classification Interfaces and Records
-/// Defines: interface INaicsNapcsCategorizable, record NaicsClassification, record NapcsClassification
+/// Module: NAICS and NAPCS Multi-Classification Interfaces and Records (Type Forwarded from Abstractions)
+/// Defines: Re-exports from TheWatch.Abstractions.Taxonomy
 /// Namespace: TheWatch.Dsl.WordNet.Taxonomy
 /// </summary>
 
-using System;
-using System.Collections.Generic;
+global using TheWatch.Abstractions.Taxonomy;
 
 namespace TheWatch.Dsl.WordNet.Taxonomy;
 
-/// <summary>
-/// Authoritative NAICS (North American Industry Classification System) 6-digit classification.
-/// </summary>
-public sealed record NaicsClassification(
-    string Code,
-    string Title,
-    string Sector,
-    bool IsCriticalInfrastructure = true,
-    double CriticalityWeight = 1.0);
-
-/// <summary>
-/// Authoritative NAPCS (North American Product Classification System) 7-digit product/service classification.
-/// </summary>
-public sealed record NapcsClassification(
-    string Code,
-    string Title,
-    string ServiceLine,
-    string DemandCategory = "EmergencyEssential");
-
-/// <summary>
-/// Enforces multi-code NAICS and NAPCS categorization on all domain data models and WordNet entities.
-/// </summary>
-public interface INaicsNapcsCategorizable
-{
-    IReadOnlyList<string> NaicsCodes { get; }
-    IReadOnlyList<string> NapcsCodes { get; }
-    IReadOnlyList<NaicsClassification> NaicsClassifications { get; }
-    IReadOnlyList<NapcsClassification> NapcsClassifications { get; }
-}
+// Canonical types defined in TheWatch.Abstractions.Taxonomy
