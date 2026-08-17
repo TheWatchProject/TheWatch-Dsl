@@ -228,14 +228,18 @@ public sealed class DslExecutionEngine
     {
         if (condition is DslBinaryConditionNode binary)
         {
-            if (binary.FieldName.Equals("Priority", StringComparison.OrdinalIgnoreCase))
+            if (binary.FieldName.Equals("Severity", StringComparison.OrdinalIgnoreCase) ||
+                binary.FieldName.Equals("Priority", StringComparison.OrdinalIgnoreCase))
             {
-                return incident.Priority.ToString().Equals(binary.TargetValue, StringComparison.OrdinalIgnoreCase) ||
-                       (binary.TargetValue == "CRITICAL" && incident.Priority == IncidentPriority.Critical);
+                return incident.Severity.Equals(binary.TargetValue, StringComparison.OrdinalIgnoreCase);
             }
             if (binary.FieldName.Equals("Status", StringComparison.OrdinalIgnoreCase))
             {
-                return incident.Status.ToString().Equals(binary.TargetValue, StringComparison.OrdinalIgnoreCase);
+                return incident.Status.Equals(binary.TargetValue, StringComparison.OrdinalIgnoreCase);
+            }
+            if (binary.FieldName.Equals("Title", StringComparison.OrdinalIgnoreCase))
+            {
+                return incident.Title.Contains(binary.TargetValue, StringComparison.OrdinalIgnoreCase);
             }
             return true;
         }
