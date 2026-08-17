@@ -1,0 +1,5 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/TheWatch.Dsl/TheWatch.Dsl.csproj" />
+  </Folder>
+</Solution>
